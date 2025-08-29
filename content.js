@@ -1,17 +1,34 @@
 let isActive = false;
+let isProcessing = false;
 
 async function init() {
   const currentDomain = window.location.hostname;
+  console.log('🔧 Paste Format Extension: Initializing for domain:', currentDomain);
+  
   try {
     const formatSettings = await chrome.storage.sync.get(currentDomain);
     const format = formatSettings[currentDomain] || 'auto';
+    console.log('🔧 Format setting for', currentDomain, ':', format);
     
     if (format !== 'auto') {
       isActive = true;
-      document.addEventListener('paste', handlePaste, true);
+      document.addEventListener('keydown', handleKeydown, true);
+      document.addEventListener('paste', blockPaste, true);
+      console.log('🔧 Keyboard and paste listeners activated for', currentDomain);
+    } else {
+      console.log('🔧 Auto mode - listeners not activated');
     }
   } catch (error) {
     console.error('Failed to initialize paste format extension:', error);
+  }
+}
+
+function blockPaste(event) {
+  if (isActive && isProcessing) {
+    console.log('🚫 Blocking default paste event');
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
   }
 }
 
@@ -19,80 +36,153 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'startListening') {
     if (!isActive) {
       isActive = true;
-      document.addEventListener('paste', handlePaste, true);
+      document.addEventListener('keydown', handleKeydown, true);
+      document.addEventListener('paste', blockPaste, true);
     }
   } else if (message.action === 'stopListening') {
     if (isActive) {
       isActive = false;
-      document.removeEventListener('paste', handlePaste, true);
+      isProcessing = false;
+      document.removeEventListener('keydown', handleKeydown, true);
+      document.removeEventListener('paste', blockPaste, true);
     }
   }
 });
 
-async function handlePaste(event) {
-  if (!isActive) return;
+async function handleKeydown(event) {
+  if (!isActive || isProcessing) return;
+  
+  const isPasteKey = (event.ctrlKey || event.metaKey) && event.key === 'v';
+  if (!isPasteKey) return;
+  
+  console.log('⌨️ Paste keyboard shortcut detected');
   
   const currentDomain = window.location.hostname;
   
   try {
     const formatSettings = await chrome.storage.sync.get(currentDomain);
     const format = formatSettings[currentDomain] || 'auto';
+    console.log('⌨️ Current format setting:', format);
     
-    if (format === 'auto') return;
-    
-    const clipboardData = event.clipboardData;
-    if (!clipboardData) return;
-    
-    const htmlData = clipboardData.getData('text/html');
-    const textData = clipboardData.getData('text/plain');
-    
-    const linkInfo = extractLinkInfo(htmlData, textData);
-    if (!linkInfo) return;
-    
-    let formattedText = '';
-    let shouldInsertAsHTML = false;
-    
-    switch (format) {
-      case 'markdown':
-        formattedText = `[${linkInfo.title}](${linkInfo.url})`;
-        break;
-      case 'richtext':
-        formattedText = `<a href="${linkInfo.url}">${linkInfo.title}</a>`;
-        shouldInsertAsHTML = true;
-        break;
-      case 'plain':
-        formattedText = `${linkInfo.title}: ${linkInfo.url}`;
-        break;
-      default:
-        return;
+    if (format === 'auto') {
+      console.log('⌨️ Auto mode - letting default paste behavior');
+      return;
     }
     
-    if (formattedText) {
-      event.preventDefault();
-      event.stopPropagation();
-      
-      insertText(formattedText, shouldInsertAsHTML);
-    }
+    console.log('⌨️ Preventing default paste behavior');
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    
+    isProcessing = true;
+    
+    setTimeout(async () => {
+      try {
+        const clipboardData = await navigator.clipboard.read();
+        console.log('⌨️ Clipboard items:', clipboardData.length);
+        
+        if (clipboardData.length === 0) {
+          console.log('⌨️ No clipboard data available');
+          return;
+        }
+        
+        const item = clipboardData[0];
+        console.log('⌨️ Available types:', item.types);
+        
+        let htmlData = '';
+        let textData = '';
+        
+        if (item.types.includes('text/html')) {
+          const blob = await item.getType('text/html');
+          htmlData = await blob.text();
+        }
+        
+        if (item.types.includes('text/plain')) {
+          const blob = await item.getType('text/plain');
+          textData = await blob.text();
+        }
+        
+        console.log('⌨️ Clipboard HTML:', htmlData ? htmlData.substring(0, 200) + '...' : 'null');
+        console.log('⌨️ Clipboard text:', textData ? textData.substring(0, 200) + '...' : 'null');
+        
+        const linkInfo = extractLinkInfo(htmlData, textData);
+        console.log('⌨️ Extracted link info:', linkInfo);
+        
+        if (!linkInfo) {
+          console.log('⌨️ No link info found - pasting original content');
+          if (textData) {
+            insertText(textData, false);
+          }
+          return;
+        }
+        
+        let formattedText = '';
+        let shouldInsertAsHTML = false;
+        
+        switch (format) {
+          case 'markdown':
+            formattedText = `[${linkInfo.title}](${linkInfo.url})`;
+            break;
+          case 'richtext':
+            formattedText = `<a href="${linkInfo.url}">${linkInfo.title}</a>`;
+            shouldInsertAsHTML = true;
+            break;
+          case 'plain':
+            formattedText = `${linkInfo.title}: ${linkInfo.url}`;
+            break;
+          default:
+            console.log('⌨️ Unknown format:', format);
+            return;
+        }
+        
+        console.log('⌨️ Formatted text:', formattedText);
+        insertText(formattedText, shouldInsertAsHTML);
+        
+      } catch (error) {
+        console.error('Error handling paste shortcut:', error);
+        console.log('⌨️ Fallback: trying to read text from clipboard');
+        
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            insertText(text, false);
+          }
+        } catch (fallbackError) {
+          console.error('Fallback clipboard read failed:', fallbackError);
+        }
+      } finally {
+        isProcessing = false;
+      }
+    }, 0);
+    
   } catch (error) {
-    console.error('Error handling paste:', error);
+    console.error('Error in handleKeydown:', error);
+    isProcessing = false;
   }
 }
 
 function insertText(text, asHTML = false) {
+  console.log('💬 insertText called with:', text, 'asHTML:', asHTML);
+  
   const activeElement = document.activeElement;
+  console.log('💬 Active element:', activeElement?.tagName, activeElement?.id, activeElement?.className);
   
   if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-    const start = activeElement.selectionStart;
-    const end = activeElement.selectionEnd;
-    const value = activeElement.value;
+    console.log('💬 Inserting into input/textarea');
+    const start = activeElement.selectionStart || 0;
+    const end = activeElement.selectionEnd || 0;
+    const value = activeElement.value || '';
     
-    activeElement.value = value.substring(0, start) + (asHTML ? text.replace(/<[^>]*>/g, '') : text) + value.substring(end);
-    activeElement.selectionStart = activeElement.selectionEnd = start + text.length;
+    const finalText = asHTML ? text.replace(/<[^>]*>/g, '') : text;
+    activeElement.value = value.substring(0, start) + finalText + value.substring(end);
+    activeElement.selectionStart = activeElement.selectionEnd = start + finalText.length;
     
     activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+    activeElement.focus();
   } else if (activeElement && (activeElement.contentEditable === 'true' || activeElement.isContentEditable)) {
+    console.log('💬 Inserting into contentEditable');
     const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
+    if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       range.deleteContents();
       
@@ -104,21 +194,35 @@ function insertText(text, asHTML = false) {
           fragment.appendChild(tempDiv.firstChild);
         }
         range.insertNode(fragment);
+        range.collapse(false);
       } else {
         const textNode = document.createTextNode(text);
         range.insertNode(textNode);
         range.setStartAfter(textNode);
         range.setEndAfter(textNode);
+        range.collapse(false);
       }
       
       selection.removeAllRanges();
       selection.addRange(range);
     }
   } else {
-    if (asHTML) {
-      document.execCommand('insertHTML', false, text);
-    } else {
-      document.execCommand('insertText', false, text);
+    console.log('💬 Using execCommand fallback');
+    try {
+      if (asHTML) {
+        document.execCommand('insertHTML', false, text);
+      } else {
+        document.execCommand('insertText', false, text);
+      }
+    } catch (error) {
+      console.error('💬 execCommand failed:', error);
+      
+      try {
+        navigator.clipboard.writeText(text);
+        console.log('💬 Wrote to clipboard as fallback');
+      } catch (clipboardError) {
+        console.error('💬 Clipboard write failed:', clipboardError);
+      }
     }
   }
 }
