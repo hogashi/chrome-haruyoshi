@@ -1,6 +1,9 @@
 import { Message, LinkInfo } from './types';
 import { findMatchingFormat } from './utils';
 
+// 拡張機能がこのサイトで有効かどうかを示すフラグ
+// trueの場合: ペースト処理をインターセプトし、フォーマット変換を実行
+// falseの場合: 通常のペースト動作を許可（拡張機能は動作しない）
 let isActive = false;
 let isProcessing = false;
 
@@ -139,6 +142,7 @@ async function handleKeydown(event: KeyboardEvent): Promise<void> {
 function insertText(text: string): void {
   const activeElement = document.activeElement as HTMLElement;
   
+  // INPUT/TEXTAREA要素の場合: value プロパティを直接操作
   if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
     const inputElement = activeElement as HTMLInputElement | HTMLTextAreaElement;
     const start = inputElement.selectionStart || 0;
@@ -150,7 +154,9 @@ function insertText(text: string): void {
     
     inputElement.dispatchEvent(new Event('input', { bubbles: true }));
     inputElement.focus();
-  } else if (activeElement && (activeElement.contentEditable === 'true' || (activeElement as any).isContentEditable)) {
+  } 
+  // contentEditable要素の場合: Selection API を使用してテキスト挿入
+  else if (activeElement && (activeElement.contentEditable === 'true' || (activeElement as any).isContentEditable)) {
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
@@ -165,7 +171,10 @@ function insertText(text: string): void {
       selection.removeAllRanges();
       selection.addRange(range);
     }
-  } else {
+  } 
+  // その他の要素の場合: execCommand を試行、失敗時はクリップボードにコピー
+  // 最悪の場合でもフォーマット変換の結果をユーザーが利用できるようにする
+  else {
     try {
       document.execCommand('insertText', false, text);
     } catch (error) {
