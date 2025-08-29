@@ -1,24 +1,20 @@
-const DEFAULT_FORMATS = {
-  'github.com': 'markdown',
-  'docs.google.com': 'richtext',
-  'notion.so': 'markdown',
-  'slack.com': 'markdown',
-  'discord.com': 'markdown',
-  'reddit.com': 'markdown'
-};
-
 chrome.runtime.onInstalled.addListener(async () => {
-  const stored = await chrome.storage.sync.get(null);
-  const updates = {};
+  // デフォルトでは何も設定しない（無効化状態）
+  console.log('Extension installed - no default formats set');
   
-  for (const [domain, format] of Object.entries(DEFAULT_FORMATS)) {
-    if (!(domain in stored)) {
-      updates[domain] = format;
+  // 古い不正な設定（'markdown', 'richtext' などの文字列）をクリア
+  const stored = await chrome.storage.sync.get(null);
+  const toRemove = [];
+  
+  for (const [domain, format] of Object.entries(stored)) {
+    if (format === 'markdown' || format === 'richtext' || format === 'plain') {
+      toRemove.push(domain);
     }
   }
   
-  if (Object.keys(updates).length > 0) {
-    await chrome.storage.sync.set(updates);
+  if (toRemove.length > 0) {
+    await chrome.storage.sync.remove(toRemove);
+    console.log('Removed old invalid format settings:', toRemove);
   }
 });
 
