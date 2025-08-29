@@ -105,6 +105,14 @@ async function handleKeydown(event) {
         console.log('⌨️ Clipboard HTML:', htmlData ? htmlData.substring(0, 200) + '...' : 'null');
         console.log('⌨️ Clipboard text:', textData ? textData.substring(0, 200) + '...' : 'null');
         
+        if (!htmlData) {
+          console.log('⌨️ No HTML data - pasting original text');
+          if (textData) {
+            insertText(textData, false);
+          }
+          return;
+        }
+        
         const linkInfo = extractLinkInfo(htmlData, textData);
         console.log('⌨️ Extracted link info:', linkInfo);
         
