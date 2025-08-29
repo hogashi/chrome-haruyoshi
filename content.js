@@ -130,11 +130,8 @@ async function handleKeydown(event) {
           .replace(/\{\{url\}\}/g, linkInfo.url);
         
         console.log('⌨️ Using template:', template);
-        
-        const shouldInsertAsHTML = template.includes('<') && template.includes('>');
-        
         console.log('⌨️ Formatted text:', formattedText);
-        insertText(formattedText, shouldInsertAsHTML);
+        insertText(formattedText, false);
         
       } catch (error) {
         console.error('Error handling paste shortcut:', error);
