@@ -1,5 +1,4 @@
-/******/ (() => { // webpackBootstrap
-/******/ 	"use strict";
+/******/ "use strict";
 
 ;// ./src/utils.ts
 function matchesDomain(currentDomain, pattern) {
@@ -96,5 +95,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-/******/ })()
-;

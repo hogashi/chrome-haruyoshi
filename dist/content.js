@@ -1,5 +1,4 @@
-/******/ (() => { // webpackBootstrap
-/******/ 	"use strict";
+/******/ "use strict";
 
 ;// ./src/utils.ts
 function matchesDomain(currentDomain, pattern) {
@@ -233,5 +232,3 @@ else {
     init();
 }
 
-/******/ })()
-;
