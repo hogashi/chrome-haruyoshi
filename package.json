@@ -7,10 +7,17 @@
     "build:dev": "webpack --mode=development",
     "watch": "webpack --mode=development --watch",
     "clean": "rm -rf dist",
-    "update-deps": "npm update"
+    "update-deps": "npm update",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.4",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.1.1",
+    "jest-environment-jsdom": "^30.1.1",
+    "ts-jest": "^29.4.1",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.2",
     "webpack": "^5.101.3",
