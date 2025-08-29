@@ -31,7 +31,7 @@ function blockPaste(event: Event): boolean {
   return true;
 }
 
-chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: Message, sender: any, sendResponse: (response?: any) => void) => {
   if (message.action === 'startListening') {
     if (!isActive) {
       isActive = true;

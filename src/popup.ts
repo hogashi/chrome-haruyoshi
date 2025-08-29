@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const saveStatus = document.getElementById('save-status') as HTMLSpanElement;
   const domainList = document.getElementById('domain-list') as HTMLDivElement;
   
-  let currentTab: chrome.tabs.Tab | undefined;
+  let currentTab: any;
   let currentDomain = '';
   
   try {

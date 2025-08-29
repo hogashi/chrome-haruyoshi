@@ -14,7 +14,8 @@
     "sourceMap": false,
     "removeComments": true,
     "noEmitOnError": true,
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["chrome"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

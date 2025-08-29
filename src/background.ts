@@ -19,7 +19,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 });
 
-chrome.tabs.onActivated.addListener(async (activeInfo) => {
+chrome.tabs.onActivated.addListener(async (activeInfo: any) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
   if (tab.url) {
     const url = new URL(tab.url);
@@ -32,7 +32,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
   }
 });
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId: number, changeInfo: any, tab: any) => {
   if (changeInfo.status === 'complete' && tab.url) {
     const url = new URL(tab.url);
     const domain = url.hostname;
@@ -44,7 +44,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse: (response: MessageResponse) => void) => {
+chrome.runtime.onMessage.addListener((message: Message, sender: any, sendResponse: (response: MessageResponse) => void) => {
   if (message.action === 'getFormat') {
     const domain = message.domain!;
     chrome.storage.sync.get(domain).then((settings: Record<string, string>) => {
