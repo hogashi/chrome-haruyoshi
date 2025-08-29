@@ -110,10 +110,7 @@ async function handleKeydown(event: KeyboardEvent): Promise<void> {
           return;
         }
         
-        const template = format;
-        const formattedText = template
-          .replace(/\{\{title\}\}/g, linkInfo.title)
-          .replace(/\{\{url\}\}/g, linkInfo.url);
+        const formattedText = formatTemplate(format, linkInfo);
         
         insertText(formattedText, false);
         
@@ -219,6 +216,17 @@ function extractLinkInfo(htmlData: string): LinkInfo | null {
   return null;
 }
 
+// Export only the formatTemplate function for testing
+export function formatTemplate(template: string, linkInfo: LinkInfo): string {
+  return template
+    .replace(/\{\{title\}\}/g, linkInfo.title)
+    .replace(/\{\{url\}\}/g, linkInfo.url);
+}
+
+// Export extractLinkInfo for testing as it has complex logic
+export { extractLinkInfo };
+
+// Initialize the content script
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
