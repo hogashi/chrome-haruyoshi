@@ -21,82 +21,98 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   if (currentDomain) {
-    const response = await chrome.runtime.sendMessage({
-      action: 'getFormat',
-      domain: currentDomain
-    });
-    
-    const currentFormat = response.format || 'auto';
-    const radio = document.querySelector(`input[value="${currentFormat}"]`);
-    if (radio) {
-      radio.checked = true;
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: 'getFormat',
+        domain: currentDomain
+      });
+      
+      const currentFormat = (response && response.format) ? response.format : 'auto';
+      const radio = document.querySelector(`input[value="${currentFormat}"]`);
+      if (radio) {
+        radio.checked = true;
+      }
+    } catch (error) {
+      console.error('Failed to get format:', error);
     }
     
     formatRadios.forEach(radio => {
       radio.addEventListener('change', async () => {
         if (radio.checked && currentDomain) {
-          await chrome.runtime.sendMessage({
-            action: 'setFormat',
-            domain: currentDomain,
-            format: radio.value
-          });
-          
-          if (radio.value !== 'auto') {
-            chrome.tabs.sendMessage(currentTab.id, { action: 'startListening' });
-          } else {
-            chrome.tabs.sendMessage(currentTab.id, { action: 'stopListening' });
+          try {
+            await chrome.runtime.sendMessage({
+              action: 'setFormat',
+              domain: currentDomain,
+              format: radio.value
+            });
+            
+            if (radio.value !== 'auto') {
+              chrome.tabs.sendMessage(currentTab.id, { action: 'startListening' });
+            } else {
+              chrome.tabs.sendMessage(currentTab.id, { action: 'stopListening' });
+            }
+            
+            loadAllFormats();
+          } catch (error) {
+            console.error('Failed to set format:', error);
           }
-          
-          loadAllFormats();
         }
       });
     });
   }
   
   async function loadAllFormats() {
-    const response = await chrome.runtime.sendMessage({ action: 'getAllFormats' });
-    const formats = response.formats || {};
-    
-    siteListElement.innerHTML = '';
-    
-    const sortedDomains = Object.keys(formats).sort();
-    
-    sortedDomains.forEach(domain => {
-      const format = formats[domain];
-      const siteItem = document.createElement('div');
-      siteItem.className = 'site-item';
+    try {
+      const response = await chrome.runtime.sendMessage({ action: 'getAllFormats' });
+      const formats = (response && response.formats) ? response.formats : {};
       
-      const domainSpan = document.createElement('span');
-      domainSpan.textContent = domain;
+      siteListElement.innerHTML = '';
       
-      const select = document.createElement('select');
-      select.innerHTML = `
-        <option value="auto">自動</option>
-        <option value="markdown">Markdown</option>
-        <option value="richtext">リッチテキスト</option>
-        <option value="plain">プレーンテキスト</option>
-      `;
-      select.value = format;
+      const sortedDomains = Object.keys(formats).sort();
       
-      select.addEventListener('change', async () => {
-        await chrome.runtime.sendMessage({
-          action: 'setFormat',
-          domain: domain,
-          format: select.value
+      sortedDomains.forEach(domain => {
+        const format = formats[domain];
+        const siteItem = document.createElement('div');
+        siteItem.className = 'site-item';
+        
+        const domainSpan = document.createElement('span');
+        domainSpan.textContent = domain;
+        
+        const select = document.createElement('select');
+        select.innerHTML = `
+          <option value="auto">自動</option>
+          <option value="markdown">Markdown</option>
+          <option value="richtext">リッチテキスト</option>
+          <option value="plain">プレーンテキスト</option>
+        `;
+        select.value = format;
+        
+        select.addEventListener('change', async () => {
+          try {
+            await chrome.runtime.sendMessage({
+              action: 'setFormat',
+              domain: domain,
+              format: select.value
+            });
+            
+            if (domain === currentDomain) {
+              const radio = document.querySelector(`input[value="${select.value}"]`);
+              if (radio) {
+                radio.checked = true;
+              }
+            }
+          } catch (error) {
+            console.error('Failed to update format:', error);
+          }
         });
         
-        if (domain === currentDomain) {
-          const radio = document.querySelector(`input[value="${select.value}"]`);
-          if (radio) {
-            radio.checked = true;
-          }
-        }
+        siteItem.appendChild(domainSpan);
+        siteItem.appendChild(select);
+        siteListElement.appendChild(siteItem);
       });
-      
-      siteItem.appendChild(domainSpan);
-      siteItem.appendChild(select);
-      siteListElement.appendChild(siteItem);
-    });
+    } catch (error) {
+      console.error('Failed to load formats:', error);
+    }
   }
   
   loadAllFormats();
