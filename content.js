@@ -1,13 +1,46 @@
 let isActive = false;
 let isProcessing = false;
 
+function matchesDomain(currentDomain, pattern) {
+  if (pattern === currentDomain) return true;
+  
+  if (pattern.startsWith('*.')) {
+    const baseDomain = pattern.slice(2); // "*.github.com" → "github.com"
+    return currentDomain.endsWith('.' + baseDomain) || currentDomain === baseDomain;
+  }
+  
+  return false;
+}
+
+async function findMatchingFormat(currentDomain) {
+  try {
+    const allSettings = await chrome.storage.sync.get(null);
+    
+    // 完全一致を最優先
+    if (allSettings[currentDomain]) {
+      return allSettings[currentDomain];
+    }
+    
+    // ワイルドカードパターンをチェック
+    for (const [pattern, format] of Object.entries(allSettings)) {
+      if (matchesDomain(currentDomain, pattern)) {
+        return format;
+      }
+    }
+    
+    return '';
+  } catch (error) {
+    console.error('Failed to find matching format:', error);
+    return '';
+  }
+}
+
 async function init() {
   const currentDomain = window.location.hostname;
   console.log('🔧 Paste Format Extension: Initializing for domain:', currentDomain);
   
   try {
-    const formatSettings = await chrome.storage.sync.get(currentDomain);
-    const format = formatSettings[currentDomain] || '';
+    const format = await findMatchingFormat(currentDomain);
     console.log('🔧 Format setting for', currentDomain, ':', format);
     
     if (format) {
@@ -65,8 +98,7 @@ async function handleKeydown(event) {
   const currentDomain = window.location.hostname;
   
   try {
-    const formatSettings = await chrome.storage.sync.get(currentDomain);
-    const format = formatSettings[currentDomain] || '';
+    const format = await findMatchingFormat(currentDomain);
     console.log('⌨️ Current format setting:', format);
     
     if (!format) {

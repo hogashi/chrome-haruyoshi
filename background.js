@@ -18,14 +18,45 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 });
 
+function matchesDomain(currentDomain, pattern) {
+  if (pattern === currentDomain) return true;
+  
+  if (pattern.startsWith('*.')) {
+    const baseDomain = pattern.slice(2);
+    return currentDomain.endsWith('.' + baseDomain) || currentDomain === baseDomain;
+  }
+  
+  return false;
+}
+
+async function findMatchingFormat(currentDomain) {
+  try {
+    const allSettings = await chrome.storage.sync.get(null);
+    
+    if (allSettings[currentDomain]) {
+      return allSettings[currentDomain];
+    }
+    
+    for (const [pattern, format] of Object.entries(allSettings)) {
+      if (matchesDomain(currentDomain, pattern)) {
+        return format;
+      }
+    }
+    
+    return '';
+  } catch (error) {
+    console.error('Failed to find matching format:', error);
+    return '';
+  }
+}
+
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
   if (tab.url) {
     const domain = new URL(tab.url).hostname;
-    const settings = await chrome.storage.sync.get(domain);
-    const format = settings[domain] || 'auto';
+    const format = await findMatchingFormat(domain);
     
-    if (format !== 'auto') {
+    if (format) {
       chrome.tabs.sendMessage(activeInfo.tabId, { action: 'startListening' });
     }
   }
@@ -34,10 +65,9 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
     const domain = new URL(tab.url).hostname;
-    const settings = await chrome.storage.sync.get(domain);
-    const format = settings[domain] || 'auto';
+    const format = await findMatchingFormat(domain);
     
-    if (format !== 'auto') {
+    if (format) {
       chrome.tabs.sendMessage(tabId, { action: 'startListening' });
     }
   }
