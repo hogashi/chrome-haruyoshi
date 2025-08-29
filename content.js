@@ -14,6 +14,7 @@ async function init() {
       isActive = true;
       document.addEventListener('keydown', handleKeydown, true);
       document.addEventListener('paste', blockPaste, true);
+      document.addEventListener('beforepaste', blockPaste, true);
       console.log('🔧 Keyboard and paste listeners activated for', currentDomain);
     } else {
       console.log('🔧 No format set - listeners not activated');
@@ -24,13 +25,15 @@ async function init() {
 }
 
 function blockPaste(event) {
-  if (isActive && isProcessing) {
+  if (isActive) {
     console.log('🚫 Blocking default paste event');
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
+    return false;
   }
 }
+
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'startListening') {
@@ -38,6 +41,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       isActive = true;
       document.addEventListener('keydown', handleKeydown, true);
       document.addEventListener('paste', blockPaste, true);
+      document.addEventListener('beforepaste', blockPaste, true);
     }
   } else if (message.action === 'stopListening') {
     if (isActive) {
@@ -45,6 +49,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       isProcessing = false;
       document.removeEventListener('keydown', handleKeydown, true);
       document.removeEventListener('paste', blockPaste, true);
+      document.removeEventListener('beforepaste', blockPaste, true);
     }
   }
 });
