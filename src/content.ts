@@ -1,7 +1,9 @@
+import { Message, MessageResponse, LinkInfo } from './types';
+
 let isActive = false;
 let isProcessing = false;
 
-function matchesDomain(currentDomain, pattern) {
+function matchesDomain(currentDomain: string, pattern: string): boolean {
   if (pattern === currentDomain) return true;
   
   if (pattern.startsWith('*.')) {
@@ -12,9 +14,9 @@ function matchesDomain(currentDomain, pattern) {
   return false;
 }
 
-async function findMatchingFormat(currentDomain) {
+async function findMatchingFormat(currentDomain: string): Promise<string> {
   try {
-    const allSettings = await chrome.storage.sync.get(null);
+    const allSettings = await chrome.storage.sync.get(null) as Record<string, string>;
     
     // 完全一致を最優先
     if (allSettings[currentDomain]) {
@@ -35,7 +37,7 @@ async function findMatchingFormat(currentDomain) {
   }
 }
 
-async function init() {
+async function init(): Promise<void> {
   const currentDomain = window.location.hostname;
   
   try {
@@ -52,17 +54,17 @@ async function init() {
   }
 }
 
-function blockPaste(event) {
+function blockPaste(event: Event): boolean {
   if (isActive) {
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
     return false;
   }
+  return true;
 }
 
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) => {
   if (message.action === 'startListening') {
     if (!isActive) {
       isActive = true;
@@ -81,7 +83,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-async function handleKeydown(event) {
+async function handleKeydown(event: KeyboardEvent): Promise<void> {
   if (!isActive || isProcessing) return;
   
   const isPasteKey = (event.ctrlKey || event.metaKey) && event.key === 'v';
@@ -170,21 +172,22 @@ async function handleKeydown(event) {
   }
 }
 
-function insertText(text, asHTML = false) {
-  const activeElement = document.activeElement;
+function insertText(text: string, asHTML = false): void {
+  const activeElement = document.activeElement as HTMLElement;
   
   if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-    const start = activeElement.selectionStart || 0;
-    const end = activeElement.selectionEnd || 0;
-    const value = activeElement.value || '';
+    const inputElement = activeElement as HTMLInputElement | HTMLTextAreaElement;
+    const start = inputElement.selectionStart || 0;
+    const end = inputElement.selectionEnd || 0;
+    const value = inputElement.value || '';
     
     const finalText = asHTML ? text.replace(/<[^>]*>/g, '') : text;
-    activeElement.value = value.substring(0, start) + finalText + value.substring(end);
-    activeElement.selectionStart = activeElement.selectionEnd = start + finalText.length;
+    inputElement.value = value.substring(0, start) + finalText + value.substring(end);
+    inputElement.selectionStart = inputElement.selectionEnd = start + finalText.length;
     
-    activeElement.dispatchEvent(new Event('input', { bubbles: true }));
-    activeElement.focus();
-  } else if (activeElement && (activeElement.contentEditable === 'true' || activeElement.isContentEditable)) {
+    inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+    inputElement.focus();
+  } else if (activeElement && (activeElement.contentEditable === 'true' || (activeElement as any).isContentEditable)) {
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
@@ -229,15 +232,15 @@ function insertText(text, asHTML = false) {
   }
 }
 
-function extractLinkInfo(htmlData) {
+function extractLinkInfo(htmlData: string): LinkInfo | null {
   if (htmlData) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlData, 'text/html');
     const links = doc.querySelectorAll('a[href]');
     
     if (links.length > 0) {
-      const link = links[0];
-      const title = link.textContent.trim();
+      const link = links[0] as HTMLAnchorElement;
+      const title = link.textContent?.trim() || '';
       const url = link.href;
       
       if (title && url && title !== url) {

@@ -1,0 +1,17 @@
+{
+  "name": "paste-in-format",
+  "version": "0.1.0",
+  "description": "A Chrome extension that allows you to paste content in different formats depending on the website",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "typescript": "^5.3.0"
+  },
+  "keywords": ["chrome-extension", "paste", "format", "clipboard"],
+  "author": "",
+  "license": "MIT"
+}

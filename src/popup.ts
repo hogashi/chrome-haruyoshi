@@ -1,12 +1,14 @@
+import { Message, MessageResponse } from './types';
+
 document.addEventListener('DOMContentLoaded', async () => {
-  const domainInput = document.getElementById('domain-input');
-  const customTemplateInput = document.getElementById('custom-template');
-  const presetButtons = document.querySelectorAll('.preset-btn');
-  const saveButton = document.getElementById('save-btn');
-  const saveStatus = document.getElementById('save-status');
-  const domainList = document.getElementById('domain-list');
+  const domainInput = document.getElementById('domain-input') as HTMLInputElement;
+  const customTemplateInput = document.getElementById('custom-template') as HTMLInputElement;
+  const presetButtons = document.querySelectorAll('.preset-btn') as NodeListOf<HTMLButtonElement>;
+  const saveButton = document.getElementById('save-btn') as HTMLButtonElement;
+  const saveStatus = document.getElementById('save-status') as HTMLSpanElement;
+  const domainList = document.getElementById('domain-list') as HTMLDivElement;
   
-  let currentTab;
+  let currentTab: chrome.tabs.Tab | undefined;
   let currentDomain = '';
   
   try {
@@ -14,7 +16,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentTab = tabs[0];
     
     if (currentTab.url) {
-      currentDomain = new URL(currentTab.url).hostname;
+      const url = new URL(currentTab.url);
+      currentDomain = url.hostname;
     }
   } catch (error) {
     console.error('Failed to get current tab:', error);
@@ -31,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   presetButtons.forEach(button => {
     button.addEventListener('click', () => {
-      const template = button.dataset.template;
+      const template = button.dataset.template || '';
       customTemplateInput.value = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
       updateSaveButton();
     });
@@ -41,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await saveCurrentFormat();
   });
   
-  async function loadFormatForDomain() {
+  async function loadFormatForDomain(): Promise<void> {
     const domain = domainInput.value.trim();
     if (!domain) {
       customTemplateInput.value = '';
@@ -53,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const response = await chrome.runtime.sendMessage({
         action: 'getFormat',
         domain: domain
-      });
+      } as Message) as MessageResponse;
       
       const formatData = response && response.format ? response.format : '';
       customTemplateInput.value = formatData;
@@ -66,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   let savedValue = '';
   
-  function updateSaveButton() {
+  function updateSaveButton(): void {
     const currentValue = customTemplateInput.value.trim();
     if (currentValue !== savedValue) {
       saveButton.textContent = '保存';
@@ -81,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
   
-  async function saveCurrentFormat() {
+  async function saveCurrentFormat(): Promise<void> {
     const domain = domainInput.value.trim();
     const template = customTemplateInput.value.trim();
     
@@ -91,7 +94,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     try {
-      console.log('💾 Saving format:', template, 'for domain:', domain);
       saveStatus.textContent = '保存中...';
       saveButton.disabled = true;
       
@@ -100,24 +102,25 @@ document.addEventListener('DOMContentLoaded', async () => {
           action: 'setFormat',
           domain: domain,
           format: template
-        });
+        } as Message);
       } else {
         await chrome.runtime.sendMessage({
           action: 'deleteFormat',
           domain: domain
-        });
+        } as Message);
       }
       
       savedValue = template;
       
       // 現在のタブがこのドメインの場合はリスナーを更新
-      if (currentTab && currentTab.url) {
-        const currentDomain = new URL(currentTab.url).hostname;
+      if (currentTab && currentTab.url && currentTab.id) {
+        const url = new URL(currentTab.url);
+        const currentDomain = url.hostname;
         if (currentDomain === domain) {
           if (template) {
-            chrome.tabs.sendMessage(currentTab.id, { action: 'startListening' });
+            chrome.tabs.sendMessage(currentTab.id, { action: 'startListening' } as Message);
           } else {
-            chrome.tabs.sendMessage(currentTab.id, { action: 'stopListening' });
+            chrome.tabs.sendMessage(currentTab.id, { action: 'stopListening' } as Message);
           }
         }
       }
@@ -133,9 +136,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
   
-  async function loadDomainList() {
+  async function loadDomainList(): Promise<void> {
     try {
-      const response = await chrome.runtime.sendMessage({ action: 'getAllFormats' });
+      const response = await chrome.runtime.sendMessage({ action: 'getAllFormats' } as Message) as MessageResponse;
       const formats = (response && response.formats) ? response.formats : {};
       
       domainList.innerHTML = '';
@@ -197,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await chrome.runtime.sendMessage({
               action: 'deleteFormat',
               domain: domain
-            });
+            } as Message);
             loadDomainList();
             
             if (domainInput.value === domain) {
@@ -225,7 +228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   // 初期化
-  async function init() {
+  async function init(): Promise<void> {
     if (currentDomain) {
       domainInput.value = currentDomain;
       await loadFormatForDomain();
