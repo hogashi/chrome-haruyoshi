@@ -52,12 +52,18 @@
       <div style="font-size: 11px; color: #666; margin-bottom: 8px;">
         使用可能な変数: {{title}}, {{url}}
       </div>
-      <div style="font-size: 12px; color: #888;">
+      <div style="font-size: 12px; color: #888; margin-bottom: 12px;">
         プリセット:
         <button class="preset-btn" data-template="[{{title}}]({{url}})">Markdown</button>
         <button class="preset-btn" data-template="{{title}}: {{url}}">プレーンテキスト</button>
         <button class="preset-btn" data-template="&lt;a href=&quot;{{url}}&quot;&gt;{{title}}&lt;/a&gt;">HTML</button>
         <button class="preset-btn" data-template="">無効化</button>
+      </div>
+      <div style="text-align: center;">
+        <button id="save-btn" style="padding: 8px 16px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+          保存
+        </button>
+        <span id="save-status" style="margin-left: 8px; font-size: 12px; color: #666;"></span>
       </div>
     </div>
   </div>
