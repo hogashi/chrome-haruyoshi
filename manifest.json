@@ -1,0 +1,10 @@
+{
+  "name": "chrome-paste-in-format-for-site",
+  "description": "Paste in format for site",
+  "version": "0.1",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "hello.html",
+    "default_icon": "hello_extensions.png"
+  }
+}
