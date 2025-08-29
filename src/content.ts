@@ -96,7 +96,7 @@ async function handleKeydown(event: KeyboardEvent): Promise<void> {
         
         if (!htmlData) {
           if (textData) {
-            insertText(textData, false);
+            insertText(textData);
           }
           return;
         }
@@ -105,14 +105,14 @@ async function handleKeydown(event: KeyboardEvent): Promise<void> {
         
         if (!linkInfo) {
           if (textData) {
-            insertText(textData, false);
+            insertText(textData);
           }
           return;
         }
         
         const formattedText = formatTemplate(format, linkInfo);
         
-        insertText(formattedText, false);
+        insertText(formattedText);
         
       } catch (error) {
         console.error('Error handling paste shortcut:', error);
@@ -120,7 +120,7 @@ async function handleKeydown(event: KeyboardEvent): Promise<void> {
         try {
           const text = await navigator.clipboard.readText();
           if (text) {
-            insertText(text, false);
+            insertText(text);
           }
         } catch (fallbackError) {
           console.error('Fallback clipboard read failed:', fallbackError);
@@ -136,7 +136,7 @@ async function handleKeydown(event: KeyboardEvent): Promise<void> {
   }
 }
 
-function insertText(text: string, asHTML = false): void {
+function insertText(text: string): void {
   const activeElement = document.activeElement as HTMLElement;
   
   if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
@@ -145,9 +145,8 @@ function insertText(text: string, asHTML = false): void {
     const end = inputElement.selectionEnd || 0;
     const value = inputElement.value || '';
     
-    const finalText = asHTML ? text.replace(/<[^>]*>/g, '') : text;
-    inputElement.value = value.substring(0, start) + finalText + value.substring(end);
-    inputElement.selectionStart = inputElement.selectionEnd = start + finalText.length;
+    inputElement.value = value.substring(0, start) + text + value.substring(end);
+    inputElement.selectionStart = inputElement.selectionEnd = start + text.length;
     
     inputElement.dispatchEvent(new Event('input', { bubbles: true }));
     inputElement.focus();
@@ -157,33 +156,18 @@ function insertText(text: string, asHTML = false): void {
       const range = selection.getRangeAt(0);
       range.deleteContents();
       
-      if (asHTML) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = text;
-        const fragment = document.createDocumentFragment();
-        while (tempDiv.firstChild) {
-          fragment.appendChild(tempDiv.firstChild);
-        }
-        range.insertNode(fragment);
-        range.collapse(false);
-      } else {
-        const textNode = document.createTextNode(text);
-        range.insertNode(textNode);
-        range.setStartAfter(textNode);
-        range.setEndAfter(textNode);
-        range.collapse(false);
-      }
+      const textNode = document.createTextNode(text);
+      range.insertNode(textNode);
+      range.setStartAfter(textNode);
+      range.setEndAfter(textNode);
+      range.collapse(false);
       
       selection.removeAllRanges();
       selection.addRange(range);
     }
   } else {
     try {
-      if (asHTML) {
-        document.execCommand('insertHTML', false, text);
-      } else {
-        document.execCommand('insertText', false, text);
-      }
+      document.execCommand('insertText', false, text);
     } catch (error) {
       console.error('execCommand failed:', error);
       
