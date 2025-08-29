@@ -1,5 +1,7 @@
-let isActive = false;
-let isProcessing = false;
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+
+;// ./src/utils.ts
 function matchesDomain(currentDomain, pattern) {
     if (pattern === currentDomain)
         return true;
@@ -27,6 +29,11 @@ async function findMatchingFormat(currentDomain) {
         return '';
     }
 }
+
+;// ./src/content.ts
+
+let isActive = false;
+let isProcessing = false;
 async function init() {
     const currentDomain = window.location.hostname;
     try {
@@ -225,4 +232,6 @@ if (document.readyState === 'loading') {
 else {
     init();
 }
-export {};
+
+/******/ })()
+;

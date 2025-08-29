@@ -1,3 +1,5 @@
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
 document.addEventListener('DOMContentLoaded', async () => {
     const domainInput = document.getElementById('domain-input');
     const customTemplateInput = document.getElementById('custom-template');
@@ -208,4 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     init();
 });
-export {};
+
+
+/******/ })()
+;

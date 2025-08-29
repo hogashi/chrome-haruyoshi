@@ -1,15 +1,7 @@
-chrome.runtime.onInstalled.addListener(async () => {
-    const stored = await chrome.storage.sync.get(null);
-    const toRemove = [];
-    for (const [domain, format] of Object.entries(stored)) {
-        if (format === 'markdown' || format === 'richtext' || format === 'plain') {
-            toRemove.push(domain);
-        }
-    }
-    if (toRemove.length > 0) {
-        await chrome.storage.sync.remove(toRemove);
-    }
-});
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+
+;// ./src/utils.ts
 function matchesDomain(currentDomain, pattern) {
     if (pattern === currentDomain)
         return true;
@@ -37,6 +29,21 @@ async function findMatchingFormat(currentDomain) {
         return '';
     }
 }
+
+;// ./src/background.ts
+
+chrome.runtime.onInstalled.addListener(async () => {
+    const stored = await chrome.storage.sync.get(null);
+    const toRemove = [];
+    for (const [domain, format] of Object.entries(stored)) {
+        if (format === 'markdown' || format === 'richtext' || format === 'plain') {
+            toRemove.push(domain);
+        }
+    }
+    if (toRemove.length > 0) {
+        await chrome.storage.sync.remove(toRemove);
+    }
+});
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
     const tab = await chrome.tabs.get(activeInfo.tabId);
     if (tab.url) {
@@ -88,4 +95,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
 });
-export {};
+
+/******/ })()
+;
