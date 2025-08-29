@@ -7,10 +7,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   const domainList = document.getElementById('domain-list');
   
   let currentTab;
+  let currentDomain = '';
   
   try {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     currentTab = tabs[0];
+    
+    if (currentTab.url) {
+      currentDomain = new URL(currentTab.url).hostname;
+    }
   } catch (error) {
     console.error('Failed to get current tab:', error);
   }
@@ -220,7 +225,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   // 初期化
-  savedValue = '';
-  updateSaveButton();
-  loadDomainList();
+  async function init() {
+    if (currentDomain) {
+      domainInput.value = currentDomain;
+      await loadFormatForDomain();
+    } else {
+      savedValue = '';
+      updateSaveButton();
+    }
+    loadDomainList();
+  }
+  
+  init();
 });
