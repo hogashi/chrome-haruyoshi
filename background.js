@@ -56,6 +56,10 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     const { domain, format } = message;
     await chrome.storage.sync.set({ [domain]: format });
     sendResponse({ success: true });
+  } else if (message.action === 'deleteFormat') {
+    const { domain } = message;
+    await chrome.storage.sync.remove(domain);
+    sendResponse({ success: true });
   } else if (message.action === 'getAllFormats') {
     const allSettings = await chrome.storage.sync.get(null);
     sendResponse({ formats: allSettings });

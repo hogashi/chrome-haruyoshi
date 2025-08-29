@@ -7,16 +7,16 @@ async function init() {
   
   try {
     const formatSettings = await chrome.storage.sync.get(currentDomain);
-    const format = formatSettings[currentDomain] || 'auto';
+    const format = formatSettings[currentDomain] || '';
     console.log('🔧 Format setting for', currentDomain, ':', format);
     
-    if (format !== 'auto') {
+    if (format) {
       isActive = true;
       document.addEventListener('keydown', handleKeydown, true);
       document.addEventListener('paste', blockPaste, true);
       console.log('🔧 Keyboard and paste listeners activated for', currentDomain);
     } else {
-      console.log('🔧 Auto mode - listeners not activated');
+      console.log('🔧 No format set - listeners not activated');
     }
   } catch (error) {
     console.error('Failed to initialize paste format extension:', error);
@@ -61,11 +61,11 @@ async function handleKeydown(event) {
   
   try {
     const formatSettings = await chrome.storage.sync.get(currentDomain);
-    const format = formatSettings[currentDomain] || 'auto';
+    const format = formatSettings[currentDomain] || '';
     console.log('⌨️ Current format setting:', format);
     
-    if (format === 'auto') {
-      console.log('⌨️ Auto mode - letting default paste behavior');
+    if (!format) {
+      console.log('⌨️ No format set - letting default paste behavior');
       return;
     }
     
@@ -116,24 +116,14 @@ async function handleKeydown(event) {
           return;
         }
         
-        let formattedText = '';
-        let shouldInsertAsHTML = false;
+        const template = format;
+        const formattedText = template
+          .replace(/\{\{title\}\}/g, linkInfo.title)
+          .replace(/\{\{url\}\}/g, linkInfo.url);
         
-        switch (format) {
-          case 'markdown':
-            formattedText = `[${linkInfo.title}](${linkInfo.url})`;
-            break;
-          case 'richtext':
-            formattedText = `<a href="${linkInfo.url}">${linkInfo.title}</a>`;
-            shouldInsertAsHTML = true;
-            break;
-          case 'plain':
-            formattedText = `${linkInfo.title}: ${linkInfo.url}`;
-            break;
-          default:
-            console.log('⌨️ Unknown format:', format);
-            return;
-        }
+        console.log('⌨️ Using template:', template);
+        
+        const shouldInsertAsHTML = template.includes('<') && template.includes('>');
         
         console.log('⌨️ Formatted text:', formattedText);
         insertText(formattedText, shouldInsertAsHTML);

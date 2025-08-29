@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const currentDomainElement = document.getElementById('current-domain');
-  const formatRadios = document.querySelectorAll('input[name="format"]');
   const siteListElement = document.getElementById('site-list');
+  const customTemplateInput = document.getElementById('custom-template');
+  const presetButtons = document.querySelectorAll('.preset-btn');
   
   let currentTab;
   let currentDomain;
@@ -27,38 +28,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         domain: currentDomain
       });
       
-      const currentFormat = (response && response.format) ? response.format : 'auto';
-      const radio = document.querySelector(`input[value="${currentFormat}"]`);
-      if (radio) {
-        radio.checked = true;
+      const formatData = response && response.format ? response.format : '';
+      
+      if (typeof formatData === 'string') {
+        customTemplateInput.value = formatData;
+      } else if (formatData && formatData.template) {
+        customTemplateInput.value = formatData.template;
       }
     } catch (error) {
       console.error('Failed to get format:', error);
     }
     
-    formatRadios.forEach(radio => {
-      radio.addEventListener('change', async () => {
-        if (radio.checked && currentDomain) {
-          try {
-            await chrome.runtime.sendMessage({
-              action: 'setFormat',
-              domain: currentDomain,
-              format: radio.value
-            });
-            
-            if (radio.value !== 'auto') {
-              chrome.tabs.sendMessage(currentTab.id, { action: 'startListening' });
-            } else {
-              chrome.tabs.sendMessage(currentTab.id, { action: 'stopListening' });
-            }
-            
-            loadAllFormats();
-          } catch (error) {
-            console.error('Failed to set format:', error);
-          }
-        }
+    customTemplateInput.addEventListener('input', async () => {
+      await saveCurrentFormat();
+    });
+    
+    presetButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const template = button.dataset.template;
+        customTemplateInput.value = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+        saveCurrentFormat();
       });
     });
+  }
+  
+  async function saveCurrentFormat() {
+    if (!currentDomain) return;
+    
+    const template = customTemplateInput.value.trim();
+    
+    try {
+      await chrome.runtime.sendMessage({
+        action: 'setFormat',
+        domain: currentDomain,
+        format: template
+      });
+      
+      if (template) {
+        chrome.tabs.sendMessage(currentTab.id, { action: 'startListening' });
+      } else {
+        chrome.tabs.sendMessage(currentTab.id, { action: 'stopListening' });
+      }
+      
+      loadAllFormats();
+    } catch (error) {
+      console.error('Failed to set format:', error);
+    }
   }
   
   async function loadAllFormats() {
@@ -78,36 +93,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         const domainSpan = document.createElement('span');
         domainSpan.textContent = domain;
         
-        const select = document.createElement('select');
-        select.innerHTML = `
-          <option value="auto">自動</option>
-          <option value="markdown">Markdown</option>
-          <option value="richtext">リッチテキスト</option>
-          <option value="plain">プレーンテキスト</option>
-        `;
-        select.value = format;
+        const formatSpan = document.createElement('span');
+        formatSpan.style.fontSize = '12px';
+        formatSpan.style.color = '#666';
+        formatSpan.style.fontFamily = 'monospace';
         
-        select.addEventListener('change', async () => {
+        if (format) {
+          formatSpan.textContent = format;
+        } else {
+          formatSpan.textContent = '(無効)';
+        }
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = '削除';
+        deleteButton.style.fontSize = '11px';
+        deleteButton.style.padding = '2px 6px';
+        deleteButton.style.marginLeft = '8px';
+        deleteButton.style.border = '1px solid #ccc';
+        deleteButton.style.borderRadius = '3px';
+        deleteButton.style.background = '#f5f5f5';
+        deleteButton.style.cursor = 'pointer';
+        
+        deleteButton.addEventListener('click', async () => {
           try {
             await chrome.runtime.sendMessage({
-              action: 'setFormat',
-              domain: domain,
-              format: select.value
+              action: 'deleteFormat',
+              domain: domain
             });
+            loadAllFormats();
             
             if (domain === currentDomain) {
-              const radio = document.querySelector(`input[value="${select.value}"]`);
-              if (radio) {
-                radio.checked = true;
-              }
+              customTemplateInput.value = '';
             }
           } catch (error) {
-            console.error('Failed to update format:', error);
+            console.error('Failed to delete format:', error);
           }
         });
         
+        const infoDiv = document.createElement('div');
+        infoDiv.appendChild(formatSpan);
+        infoDiv.appendChild(deleteButton);
+        
         siteItem.appendChild(domainSpan);
-        siteItem.appendChild(select);
+        siteItem.appendChild(infoDiv);
         siteListElement.appendChild(siteItem);
       });
     } catch (error) {
