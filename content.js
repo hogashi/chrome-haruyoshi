@@ -113,7 +113,7 @@ async function handleKeydown(event) {
           return;
         }
         
-        const linkInfo = extractLinkInfo(htmlData, textData);
+        const linkInfo = extractLinkInfo(htmlData);
         console.log('⌨️ Extracted link info:', linkInfo);
         
         if (!linkInfo) {
@@ -222,7 +222,7 @@ function insertText(text, asHTML = false) {
   }
 }
 
-function extractLinkInfo(htmlData, textData) {
+function extractLinkInfo(htmlData) {
   if (htmlData) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlData, 'text/html');
@@ -235,22 +235,6 @@ function extractLinkInfo(htmlData, textData) {
       
       if (title && url && title !== url) {
         return { title, url };
-      }
-    }
-  }
-  
-  if (textData) {
-    const lines = textData.split('\n').filter(line => line.trim());
-    
-    for (const line of lines) {
-      const urlMatch = line.match(/https?:\/\/[^\s]+/);
-      if (urlMatch) {
-        const url = urlMatch[0];
-        const title = line.replace(url, '').trim();
-        
-        if (title) {
-          return { title, url };
-        }
       }
     }
   }
