@@ -196,7 +196,7 @@ function insertText(text: string, asHTML = false): void {
   }
 }
 
-function extractLinkInfo(htmlData: string): LinkInfo | null {
+export function extractLinkInfo(htmlData: string): LinkInfo | null {
   if (htmlData) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlData, 'text/html');
@@ -222,9 +222,6 @@ export function formatTemplate(template: string, linkInfo: LinkInfo): string {
     .replace(/\{\{title\}\}/g, linkInfo.title)
     .replace(/\{\{url\}\}/g, linkInfo.url);
 }
-
-// Export extractLinkInfo for testing as it has complex logic
-export { extractLinkInfo };
 
 // Initialize the content script
 if (document.readyState === 'loading') {
