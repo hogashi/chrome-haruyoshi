@@ -47,22 +47,34 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'getFormat') {
     const domain = message.domain;
-    const settings = await chrome.storage.sync.get(domain);
-    sendResponse({ format: settings[domain] || 'auto' });
+    chrome.storage.sync.get(domain).then(settings => {
+      console.log('🔍 Background getFormat for domain:', domain, 'settings:', settings);
+      const format = settings[domain] || '';
+      console.log('🔍 Returning format:', format);
+      sendResponse({ format: format });
+    });
+    return true; // Keep message channel open for async response
   } else if (message.action === 'setFormat') {
     const { domain, format } = message;
-    await chrome.storage.sync.set({ [domain]: format });
-    sendResponse({ success: true });
+    console.log('💾 Background setFormat for domain:', domain, 'format:', format);
+    chrome.storage.sync.set({ [domain]: format }).then(() => {
+      console.log('💾 Saved to storage');
+      sendResponse({ success: true });
+    });
+    return true; // Keep message channel open for async response
   } else if (message.action === 'deleteFormat') {
     const { domain } = message;
-    await chrome.storage.sync.remove(domain);
-    sendResponse({ success: true });
+    chrome.storage.sync.remove(domain).then(() => {
+      sendResponse({ success: true });
+    });
+    return true; // Keep message channel open for async response
   } else if (message.action === 'getAllFormats') {
-    const allSettings = await chrome.storage.sync.get(null);
-    sendResponse({ formats: allSettings });
+    chrome.storage.sync.get(null).then(allSettings => {
+      sendResponse({ formats: allSettings });
+    });
+    return true; // Keep message channel open for async response
   }
-  return true;
 });

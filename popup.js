@@ -27,12 +27,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         domain: currentDomain
       });
       
+      console.log('📥 Raw response:', response);
       const formatData = response && response.format ? response.format : '';
+      console.log('📥 Loaded format data:', formatData);
       
       if (typeof formatData === 'string') {
         customTemplateInput.value = formatData;
+        console.log('📥 Set input value:', formatData);
+        console.log('📥 Input element value after setting:', customTemplateInput.value);
       } else if (formatData && formatData.template) {
         customTemplateInput.value = formatData.template;
+        console.log('📥 Set input value from template:', formatData.template);
+        console.log('📥 Input element value after setting:', customTemplateInput.value);
       }
     } catch (error) {
       console.error('Failed to get format:', error);
@@ -57,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const template = customTemplateInput.value.trim();
     
     try {
+      console.log('💾 Saving format:', template, 'for domain:', currentDomain);
       await chrome.runtime.sendMessage({
         action: 'setFormat',
         domain: currentDomain,
