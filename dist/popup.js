@@ -79,13 +79,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateSaveButton() {
         const currentValue = customTemplateInput.value.trim();
         if (currentValue !== savedValue) {
-            saveButton.textContent = '保存';
+            saveButton.textContent = 'Save';
             saveButton.style.background = '#007cba';
             saveButton.disabled = false;
             saveStatus.textContent = '';
         }
         else {
-            saveButton.textContent = '保存済み';
+            saveButton.textContent = 'Saved';
             saveButton.style.background = '#666';
             saveButton.disabled = true;
             saveStatus.textContent = '';
@@ -95,11 +95,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const domain = domainInput.value.trim();
         const template = customTemplateInput.value.trim();
         if (!domain) {
-            saveStatus.textContent = 'ドメインを入力してください';
+            saveStatus.textContent = 'Please enter a domain';
             return;
         }
         try {
-            saveStatus.textContent = '保存中...';
+            saveStatus.textContent = 'Saving...';
             saveButton.disabled = true;
             if (template) {
                 await chrome.runtime.sendMessage({
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         catch (error) {
             console.error('Failed to set format:', error);
-            saveStatus.textContent = '保存エラー';
+            saveStatus.textContent = 'Save error';
             saveButton.disabled = false;
         }
     }
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             domainList.innerHTML = '';
             const sortedDomains = Object.keys(formats).sort();
             if (sortedDomains.length === 0) {
-                domainList.innerHTML = '<div style="padding: 8px; font-size: 12px; color: #666; text-align: center;">設定なし</div>';
+                domainList.innerHTML = '<div style="padding: 8px; font-size: 12px; color: #666; text-align: center;">No configurations</div>';
                 return;
             }
             sortedDomains.forEach(domain => {
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 domainInfo.appendChild(domainSpan);
                 domainInfo.appendChild(formatSpan);
                 const editButton = document.createElement('button');
-                editButton.textContent = '編集';
+                editButton.textContent = 'Edit';
                 editButton.style.fontSize = '11px';
                 editButton.style.padding = '4px 8px';
                 editButton.style.border = '1px solid #ccc';
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     loadFormatForDomain();
                 });
                 const deleteButton = document.createElement('button');
-                deleteButton.textContent = '削除';
+                deleteButton.textContent = 'Delete';
                 deleteButton.style.fontSize = '11px';
                 deleteButton.style.padding = '4px 8px';
                 deleteButton.style.border = '1px solid #ccc';

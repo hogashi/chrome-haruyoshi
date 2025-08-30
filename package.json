@@ -1,6 +1,6 @@
 {
   "name": "chrome-paste-in-format",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Chrome extension that allows you to paste content in different formats depending on the website",
   "scripts": {
     "build": "webpack --mode=production",

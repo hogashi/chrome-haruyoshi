@@ -55,35 +55,35 @@
 </head>
 <body>
   <div class="current-site">
-    <strong style="font-size: 16px;">フォーマット設定</strong>
+    <strong style="font-size: 16px;">Format Settings</strong>
     <div class="format-options">
       <div style="margin-bottom: 8px;">
         <label for="domain-input" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 14px;">
-          ドメイン:
+          Domain:
         </label>
         <input type="text" id="domain-input" placeholder="example.test" style="width: 100%; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; box-sizing: border-box;">
-      <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
-        <code>*.example.test</code>でサブドメインをまとめて指定
-      </div>
+        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+          e.g.) <code>example.test</code>, <code>*.example.test</code>
+        </div>
       </div>
       <div style="margin-bottom: 8px;">
         <label for="custom-template" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 14px;">
-          貼り付けフォーマット:
+          Paste Format:
         </label>
-        <input type="text" id="custom-template" placeholder="{{title}}: {{url}}" style="width: 100%; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; box-sizing: border-box;">
-      <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
-        使用可能な変数: <code>{{title}}</code>, <code>{{url}}</code>
-      </div>
+        <input type="text" id="custom-template" placeholder="{{title}} - {{url}}" style="width: 100%; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; box-sizing: border-box;">
+        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+          variables: <code>{{title}}</code>, <code>{{url}}</code>
+        </div>
       </div>
       <div style="font-size: 12px; color: #888; margin-bottom: 12px;">
-        プリセット:
+        Presets:
         <button class="preset-btn" data-template="[{{title}}]({{url}})">Markdown</button>
-        <button class="preset-btn" data-template="{{title}}: {{url}}">プレーンテキスト</button>
+        <button class="preset-btn" data-template="{{title}}: {{url}}">Plain Text</button>
         <button class="preset-btn" data-template="&lt;a href=&quot;{{url}}&quot;&gt;{{title}}&lt;/a&gt;">HTML</button>
       </div>
       <div style="text-align: center;">
         <button id="save-btn" style="padding: 8px 16px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
-          保存
+          Save
         </button>
         <span id="save-status" style="margin-left: 8px; font-size: 12px; color: #666;"></span>
       </div>
@@ -91,10 +91,10 @@
   </div>
 
   <div style="margin-top: 16px;">
-    <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">設定済みドメイン</h3>
+    <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">Configured Domains</h3>
     <div id="domain-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
       <div style="padding: 8px; font-size: 12px; color: #666; text-align: center;">
-        設定なし
+        No configurations
       </div>
     </div>
   </div>
