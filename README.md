@@ -1,6 +1,8 @@
-# Paste In Format
+# Haruyoshi
 
 A Chrome extension that allows you to paste content in different formats depending on the website.
+
+The name "Haruyoshi" comes from the Japanese phrase "よしなに貼る" (yoshina ni haru), meaning "to paste appropriately".
 
 ## Features
 
