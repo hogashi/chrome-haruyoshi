@@ -1,6 +1,5 @@
 {
   "name": "chrome-haruyoshi",
-  "version": "0.2.0",
   "description": "A Chrome extension that allows you to paste content in different formats depending on the website",
   "scripts": {
     "build": "webpack --mode=production",
