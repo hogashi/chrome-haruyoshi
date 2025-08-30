@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,js}\" \"tests/**/*.{ts,js}\" \"*.{json,md,html}\" \"!package-lock.json\"",
     "format:check": "prettier --check \"src/**/*.{ts,js}\" \"tests/**/*.{ts,js}\" \"*.{json,md,html}\" \"!package-lock.json\"",
-    "pack": "npm run build && mkdir -p tmp && zip -r tmp/chrome-haruyoshi.zip manifest.json popup.html icon.png dist/ -x '*.DS_Store'"
+    "pack": "npm run build && mkdir -p tmp && zip -r tmp/chrome-haruyoshi.zip manifest.json popup.html yo.png dist/ -x '*.DS_Store'"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.4",
