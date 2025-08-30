@@ -27,6 +27,34 @@
         align-items: center;
         gap: 8px;
       }
+      .input-group {
+        margin-bottom: 8px;
+      }
+      .input-label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 500;
+        font-size: 14px;
+      }
+      .input-field {
+        width: 100%;
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        box-sizing: border-box;
+      }
+      .input-help {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+      .presets-section {
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 12px;
+      }
       .preset-btn {
         margin: 2px 4px 2px 0;
         padding: 3px 8px;
@@ -40,8 +68,32 @@
       .preset-btn:hover {
         background: #e8e8e8;
       }
+      .save-section {
+        text-align: center;
+      }
+      .save-btn {
+        padding: 8px 16px;
+        background: #007cba;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .save-status {
+        margin-left: 8px;
+        font-size: 12px;
+        color: #666;
+      }
       .configured-domains {
         margin-top: 16px;
+      }
+      .domain-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f9f9f9;
       }
       .domain-item {
         display: flex;
@@ -57,73 +109,47 @@
       .domain-item:hover {
         background: #f5f5f5;
       }
+      .no-config {
+        padding: 8px;
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <h3>Format Settings</h3>
     <div class="current-site">
       <div class="format-options">
-        <div style="margin-bottom: 8px">
-          <label
-            for="domain-input"
-            style="
-              display: block;
-              margin-bottom: 4px;
-              font-weight: 500;
-              font-size: 14px;
-            "
-          >
+        <div class="input-group">
+          <label for="domain-input" class="input-label">
             Domain:
           </label>
           <input
             type="text"
             id="domain-input"
             placeholder="example.test"
-            style="
-              width: 100%;
-              padding: 8px;
-              font-size: 14px;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-              box-sizing: border-box;
-            "
+            class="input-field"
           />
-          <div style="font-size: 12px; color: #666; margin-bottom: 8px">
+          <div class="input-help">
             e.g.) <code>example.test</code>, <code>*.example.test</code>
           </div>
         </div>
-        <div style="margin-bottom: 8px">
-          <label
-            for="custom-template"
-            style="
-              display: block;
-              margin-bottom: 4px;
-              font-weight: 500;
-              font-size: 14px;
-            "
-          >
+        <div class="input-group">
+          <label for="custom-template" class="input-label">
             Paste Format:
           </label>
           <input
             type="text"
             id="custom-template"
             placeholder="{{title}} - {{url}}"
-            style="
-              width: 100%;
-              padding: 8px;
-              font-size: 14px;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-              box-sizing: border-box;
-            "
+            class="input-field"
           />
-          <div style="font-size: 12px; color: #666; margin-bottom: 8px">
+          <div class="input-help">
             variables: <code>{{title}}</code>, <code>{{url}}</code>
           </div>
         </div>
-        <div style="font-size: 12px; color: #888; margin-bottom: 12px">
+        <div class="presets-section">
           Presets:
           <button class="preset-btn" data-template="[{{title}}]({{url}})">
             Markdown
@@ -138,44 +164,19 @@
             HTML
           </button>
         </div>
-        <div style="text-align: center">
-          <button
-            id="save-btn"
-            style="
-              padding: 8px 16px;
-              background: #007cba;
-              color: white;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-              font-size: 13px;
-            "
-          >
+        <div class="save-section">
+          <button id="save-btn" class="save-btn">
             Save
           </button>
-          <span
-            id="save-status"
-            style="margin-left: 8px; font-size: 12px; color: #666"
-          ></span>
+          <span id="save-status" class="save-status"></span>
         </div>
       </div>
     </div>
 
     <h3>Configured Domains</h3>
     <div class="configured-domains">
-      <div
-        id="domain-list"
-        style="
-          max-height: 200px;
-          overflow-y: auto;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          background: #f9f9f9;
-        "
-      >
-        <div
-          style="padding: 8px; font-size: 12px; color: #666; text-align: center"
-        >
+      <div id="domain-list" class="domain-list">
+        <div class="no-config">
           No configurations
         </div>
       </div>
