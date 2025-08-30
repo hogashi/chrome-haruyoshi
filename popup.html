@@ -8,6 +8,9 @@
         padding: 16px;
         font-family:
           -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
       }
       h3 {
         margin: 0 0 8px;
@@ -15,27 +18,21 @@
       }
       .current-site {
         padding: 8px;
-        margin-bottom: 16px;
       }
       .format-options {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-      }
-      .format-option {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        gap: 12px;
       }
       .input-label {
         display: block;
-        margin-bottom: 4px;
         font-weight: 500;
         font-size: 14px;
       }
       .input-field {
         width: 100%;
         padding: 8px;
+        margin: 4px 0;
         font-size: 14px;
         border: 1px solid #ccc;
         border-radius: 4px;
@@ -45,12 +42,10 @@
       .input-help {
         font-size: 12px;
         color: #666;
-        margin-bottom: 8px;
       }
       .presets-section {
         font-size: 12px;
         color: #888;
-        margin-bottom: 12px;
       }
       .preset-btn {
         margin: 2px 4px 2px 0;
@@ -66,7 +61,10 @@
         background: #e8e8e8;
       }
       .save-section {
-        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
       }
       .save-btn {
         padding: 8px 16px;
@@ -76,6 +74,7 @@
         border-radius: 4px;
         cursor: pointer;
         font-size: 13px;
+        width: 100px;
       }
       .configured-domains {
         margin-top: 16px;
@@ -108,72 +107,73 @@
         text-align: center;
       }
       .save-error {
-        margin-top: 8px;
         font-size: 12px;
         color: #d32f2f;
       }
     </style>
   </head>
   <body>
-    <h3>Pasting format settings</h3>
-    <div class="current-site">
-      <div class="format-options">
-        <div class="input-group">
-          <label for="domain-input" class="input-label"
-            >Target site domain:</label
-          >
-          <input
-            type="text"
-            id="domain-input"
-            placeholder="example.dev"
-            class="input-field"
-          />
-          <div class="input-help">
-            e.g.) <code>example.dev</code>, <code>*.example.dev</code>
+    <section>
+      <h3>Pasting format settings</h3>
+      <div class="current-site">
+        <div class="format-options">
+          <div class="input-group">
+            <label for="domain-input" class="input-label"
+              >Target site domain:</label
+            >
+            <input
+              type="text"
+              id="domain-input"
+              placeholder="example.dev"
+              class="input-field"
+            />
+            <div class="input-help">
+              e.g.) <code>example.dev</code>, <code>*.example.dev</code>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="custom-template" class="input-label">Format:</label>
+            <input
+              type="text"
+              id="custom-template"
+              placeholder="{{title}} - {{url}}"
+              class="input-field"
+            />
+            <div class="input-help">
+              variables: <code>{{title}}</code>, <code>{{url}}</code>
+            </div>
+          </div>
+          <div class="presets-section">
+            Presets:
+            <button class="preset-btn" data-template="[{{title}}]({{url}})">
+              Markdown
+            </button>
+            <button
+              class="preset-btn"
+              data-template='&lt;a href="{{url}}"&gt;{{title}}&lt;/a&gt;'
+            >
+              HTML
+            </button>
+            <button class="preset-btn" data-template="{{title}}: {{url}}">
+              Plain
+            </button>
+          </div>
+          <div class="save-section">
+            <button id="save-btn" class="save-btn">Save</button>
+            <div id="save-error" class="save-error"></div>
           </div>
         </div>
-        <div class="input-group">
-          <label for="custom-template" class="input-label">Format:</label>
-          <input
-            type="text"
-            id="custom-template"
-            placeholder="{{title}} - {{url}}"
-            class="input-field"
-          />
-          <div class="input-help">
-            variables: <code>{{title}}</code>, <code>{{url}}</code>
-          </div>
-        </div>
-        <div class="presets-section">
-          Presets:
-          <button class="preset-btn" data-template="[{{title}}]({{url}})">
-            Markdown
-          </button>
-          <button
-            class="preset-btn"
-            data-template='&lt;a href="{{url}}"&gt;{{title}}&lt;/a&gt;'
-          >
-            HTML
-          </button>
-          <button class="preset-btn" data-template="{{title}}: {{url}}">
-            Plain
-          </button>
-        </div>
-        <div class="save-section">
-          <button id="save-btn" class="save-btn">Save</button>
-          <div id="save-error" class="save-error"></div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Configured formats</h3>
+      <div class="configured-domains">
+        <div id="domain-list" class="domain-list">
+          <div class="no-config">No configurations</div>
         </div>
       </div>
-    </div>
-
-    <hr />
-
-    <h3>Configured formats</h3>
-    <div class="configured-domains">
-      <div id="domain-list" class="domain-list">
-        <div class="no-config">No configurations</div>
-      </div>
-    </div>
+    </section>
 
     <script src="dist/popup.js"></script>
   </body>

@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     domainInput.addEventListener('input', () => {
         updateSaveButton();
-        loadFormatForDomain();
     });
     customTemplateInput.addEventListener('input', () => {
         updateSaveButton();
@@ -60,7 +59,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function loadFormatForDomain() {
         const domain = domainInput.value.trim();
         if (!domain) {
-            customTemplateInput.value = '';
+            updateSaveButton();
+            return;
+        }
+        const currentValue = customTemplateInput.value.trim();
+        if (currentValue !== savedValue) {
             updateSaveButton();
             return;
         }
@@ -80,19 +83,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     let savedValue = '';
     function updateSaveButton() {
-        const currentValue = customTemplateInput.value.trim();
-        if (currentValue !== savedValue) {
-            saveButton.textContent = 'Save';
-            saveButton.style.background = '#007cba';
-            saveButton.disabled = false;
-            saveError.textContent = '';
-        }
-        else {
-            saveButton.textContent = 'Saved';
-            saveButton.style.background = '#666';
-            saveButton.disabled = true;
-            saveError.textContent = '';
-        }
+        saveButton.textContent = 'Save';
+        saveButton.style.background = '#007cba';
+        saveButton.disabled = false;
+        saveError.textContent = '';
     }
     async function saveCurrentFormat() {
         const domain = domainInput.value.trim();
@@ -134,7 +128,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
             saveError.textContent = '';
-            updateSaveButton();
+            saveButton.textContent = 'Saved';
+            saveButton.style.background = '#666';
+            saveButton.disabled = true;
+            setTimeout(() => {
+                updateSaveButton();
+            }, 1000);
             loadDomainList();
         }
         catch (error) {
@@ -183,7 +182,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 editButton.style.marginRight = '4px';
                 editButton.addEventListener('click', () => {
                     domainInput.value = domain;
-                    loadFormatForDomain();
+                    customTemplateInput.value = format;
+                    savedValue = format;
+                    updateSaveButton();
                 });
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
@@ -201,8 +202,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         });
                         loadDomainList();
                         if (domainInput.value === domain) {
-                            domainInput.value = '';
-                            customTemplateInput.value = '';
                             savedValue = '';
                             updateSaveButton();
                         }

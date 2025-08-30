@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   domainInput.addEventListener('input', () => {
     updateSaveButton();
-    loadFormatForDomain();
   });
 
   customTemplateInput.addEventListener('input', () => {
@@ -56,7 +55,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function loadFormatForDomain(): Promise<void> {
     const domain = domainInput.value.trim();
     if (!domain) {
-      customTemplateInput.value = '';
+      updateSaveButton();
+      return;
+    }
+
+    // フォーマットが変更されている場合は上書きしない
+    const currentValue = customTemplateInput.value.trim();
+    if (currentValue !== savedValue) {
       updateSaveButton();
       return;
     }
@@ -79,18 +84,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let savedValue = '';
 
   function updateSaveButton(): void {
-    const currentValue = customTemplateInput.value.trim();
-    if (currentValue !== savedValue) {
-      saveButton.textContent = 'Save';
-      saveButton.style.background = '#007cba';
-      saveButton.disabled = false;
-      saveError.textContent = '';
-    } else {
-      saveButton.textContent = 'Saved';
-      saveButton.style.background = '#666';
-      saveButton.disabled = true;
-      saveError.textContent = '';
-    }
+    saveButton.textContent = 'Save';
+    saveButton.style.background = '#007cba';
+    saveButton.disabled = false;
+    saveError.textContent = '';
   }
 
   async function saveCurrentFormat(): Promise<void> {
@@ -138,7 +135,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       saveError.textContent = '';
-      updateSaveButton();
+      
+      // 保存成功後、1秒間Savedと表示
+      saveButton.textContent = 'Saved';
+      saveButton.style.background = '#666';
+      saveButton.disabled = true;
+      
+      setTimeout(() => {
+        updateSaveButton();
+      }, 1000);
+      
       loadDomainList();
     } catch (error) {
       console.error('Failed to set format:', error);
@@ -197,7 +203,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         editButton.addEventListener('click', () => {
           domainInput.value = domain;
-          loadFormatForDomain();
+          customTemplateInput.value = format;
+          savedValue = format;
+          updateSaveButton();
         });
 
         const deleteButton = document.createElement('button');
@@ -218,8 +226,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadDomainList();
 
             if (domainInput.value === domain) {
-              domainInput.value = '';
-              customTemplateInput.value = '';
               savedValue = '';
               updateSaveButton();
             }
