@@ -1,5 +1,5 @@
 {
-  "name": "chrome-paste-in-format",
+  "name": "chrome-haruyoshi",
   "version": "0.2.0",
   "description": "A Chrome extension that allows you to paste content in different formats depending on the website",
   "scripts": {
@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,js,json}\" \"tests/**/*.{ts,js}\" \"*.{json,md,html}\"",
     "format:check": "prettier --check \"src/**/*.{ts,js,json}\" \"tests/**/*.{ts,js}\" \"*.{json,md,html}\"",
-    "pack": "npm run build && zip -r chrome-paste-in-format-v0.2.0.zip manifest.json popup.html icon.png dist/ -x '*.DS_Store'"
+    "pack": "npm run build && zip -r chrome-haruyoshi-v0.2.0.zip manifest.json popup.html icon.png dist/ -x '*.DS_Store'"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.4",
