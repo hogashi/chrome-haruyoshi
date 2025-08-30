@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const customTemplateInput = document.getElementById('custom-template');
     const presetButtons = document.querySelectorAll('.preset-btn');
     const saveButton = document.getElementById('save-btn');
-    const saveStatus = document.getElementById('save-status');
+    const saveError = document.getElementById('save-error');
     const domainList = document.getElementById('domain-list');
     let currentTab;
     let currentDomain = '';
@@ -85,24 +85,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             saveButton.textContent = 'Save';
             saveButton.style.background = '#007cba';
             saveButton.disabled = false;
-            saveStatus.textContent = '';
+            saveError.textContent = '';
         }
         else {
             saveButton.textContent = 'Saved';
             saveButton.style.background = '#666';
             saveButton.disabled = true;
-            saveStatus.textContent = '';
+            saveError.textContent = '';
         }
     }
     async function saveCurrentFormat() {
         const domain = domainInput.value.trim();
         const template = customTemplateInput.value.trim();
         if (!domain) {
-            saveStatus.textContent = 'Please enter a domain';
+            saveError.textContent = 'Please enter a domain';
             return;
         }
         try {
-            saveStatus.textContent = 'Saving...';
             saveButton.disabled = true;
             if (template) {
                 await chrome.runtime.sendMessage({
@@ -134,13 +133,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
             }
-            saveStatus.textContent = '';
+            saveError.textContent = '';
             updateSaveButton();
             loadDomainList();
         }
         catch (error) {
             console.error('Failed to set format:', error);
-            saveStatus.textContent = 'Save error';
+            saveError.textContent = 'Save error';
             saveButton.disabled = false;
         }
     }

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     '.preset-btn'
   ) as NodeListOf<HTMLButtonElement>;
   const saveButton = document.getElementById('save-btn') as HTMLButtonElement;
-  const saveStatus = document.getElementById('save-status') as HTMLSpanElement;
+  const saveError = document.getElementById('save-error') as HTMLSpanElement;
   const domainList = document.getElementById('domain-list') as HTMLDivElement;
 
   let currentTab: any;
@@ -84,12 +84,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       saveButton.textContent = 'Save';
       saveButton.style.background = '#007cba';
       saveButton.disabled = false;
-      saveStatus.textContent = '';
+      saveError.textContent = '';
     } else {
       saveButton.textContent = 'Saved';
       saveButton.style.background = '#666';
       saveButton.disabled = true;
-      saveStatus.textContent = '';
+      saveError.textContent = '';
     }
   }
 
@@ -98,12 +98,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const template = customTemplateInput.value.trim();
 
     if (!domain) {
-      saveStatus.textContent = 'Please enter a domain';
+      saveError.textContent = 'Please enter a domain';
       return;
     }
 
     try {
-      saveStatus.textContent = 'Saving...';
       saveButton.disabled = true;
 
       if (template) {
@@ -138,12 +137,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
 
-      saveStatus.textContent = '';
+      saveError.textContent = '';
       updateSaveButton();
       loadDomainList();
     } catch (error) {
       console.error('Failed to set format:', error);
-      saveStatus.textContent = 'Save error';
+      saveError.textContent = 'Save error';
       saveButton.disabled = false;
     }
   }
