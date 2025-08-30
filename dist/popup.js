@@ -1,22 +1,36 @@
 /******/ "use strict";
-/******/ // The require scope
-/******/ var __webpack_require__ = {};
-/******/ 
-/************************************************************************/
-/******/ /* webpack/runtime/make namespace object */
-/******/ (() => {
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = (exports) => {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/ })();
-/******/ 
-/************************************************************************/
-var __webpack_exports__ = {};
-__webpack_require__.r(__webpack_exports__);
+
+;// ./src/utils.ts
+function matchesDomain(currentDomain, pattern) {
+    if (pattern === currentDomain)
+        return true;
+    if (pattern.startsWith('*.')) {
+        const baseDomain = pattern.slice(2);
+        return (currentDomain.endsWith('.' + baseDomain) || currentDomain === baseDomain);
+    }
+    return false;
+}
+async function findMatchingFormat(currentDomain) {
+    try {
+        const allSettings = (await chrome.storage.sync.get(null));
+        if (allSettings[currentDomain]) {
+            return allSettings[currentDomain];
+        }
+        for (const [pattern, format] of Object.entries(allSettings)) {
+            if (matchesDomain(currentDomain, pattern)) {
+                return format;
+            }
+        }
+        return '';
+    }
+    catch (error) {
+        console.error('Failed to find matching format:', error);
+        return '';
+    }
+}
+
+;// ./src/popup.ts
+
 document.addEventListener('DOMContentLoaded', async () => {
     const domainInput = document.getElementById('domain-input');
     const customTemplateInput = document.getElementById('custom-template');
@@ -68,11 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         try {
-            const response = (await chrome.runtime.sendMessage({
-                action: 'getFormat',
-                domain: domain,
-            }));
-            const formatData = response && response.format ? response.format : '';
+            const formatData = await findMatchingFormat(domain);
             customTemplateInput.value = formatData;
             savedValue = formatData;
             updateSaveButton();
@@ -235,5 +245,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     init();
 });
-
 

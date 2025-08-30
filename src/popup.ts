@@ -1,4 +1,5 @@
 import { Message, MessageResponse } from './types';
+import { findMatchingFormat } from './utils';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const domainInput = document.getElementById(
@@ -67,12 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      const response = (await chrome.runtime.sendMessage({
-        action: 'getFormat',
-        domain: domain,
-      } as Message)) as MessageResponse;
-
-      const formatData = response && response.format ? response.format : '';
+      const formatData = await findMatchingFormat(domain);
       customTemplateInput.value = formatData;
       savedValue = formatData;
       updateSaveButton();

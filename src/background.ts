@@ -54,16 +54,7 @@ chrome.runtime.onMessage.addListener(
     sender: any,
     sendResponse: (response: MessageResponse) => void
   ) => {
-    if (message.action === 'getFormat') {
-      const domain = message.domain!;
-      chrome.storage.sync
-        .get(domain)
-        .then((settings: Record<string, string>) => {
-          const format = settings[domain] || '';
-          sendResponse({ format: format });
-        });
-      return true; // Keep message channel open for async response
-    } else if (message.action === 'setFormat') {
+    if (message.action === 'setFormat') {
       const { domain, format } = message;
       chrome.storage.sync.set({ [domain!]: format! }).then(() => {
         sendResponse({ success: true });

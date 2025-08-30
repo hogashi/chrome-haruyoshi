@@ -1,7 +1,6 @@
 // Chrome extension message types
 export interface Message {
   action:
-    | 'getFormat'
     | 'setFormat'
     | 'deleteFormat'
     | 'getAllFormats'
@@ -22,9 +21,3 @@ export interface LinkInfo {
   title: string;
   url: string;
 }
-
-// Domain matching function type
-export type DomainMatcher = (currentDomain: string, pattern: string) => boolean;
-
-// Format finder function type
-export type FormatFinder = (currentDomain: string) => Promise<string>;
