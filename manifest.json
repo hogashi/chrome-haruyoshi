@@ -5,7 +5,12 @@
   "manifest_version": 3,
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "icon.png"
+    "default_icon": "yo.png"
+  },
+  "icons": {
+    "16": "yo.png",
+    "48": "yo.png",
+    "128": "yo.png"
   },
   "permissions": ["activeTab", "storage", "clipboardRead", "clipboardWrite"],
   "content_scripts": [
