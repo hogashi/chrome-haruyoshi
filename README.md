@@ -30,5 +30,5 @@ Extensions like [cocopy](https://github.com/pokutuna/chrome-cocopy) allow you to
 ## Domain Configuration Examples
 
 - `github.com` - GitHub.com only
-- `*.github.com` - All GitHub subdomains (docs.github.com, api.github.com, etc.)
+- `*.github.com` - All GitHub subdomains (docs.github.com, support.github.com, etc.)
 - Exact matches take priority: if you configure both `github.com` and `*.github.com`, the exact match will be used for `github.com`
