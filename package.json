@@ -13,7 +13,8 @@
     "test:coverage": "jest --coverage",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,js,json}\" \"tests/**/*.{ts,js}\" \"*.{json,md,html}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,js,json}\" \"tests/**/*.{ts,js}\" \"*.{json,md,html}\""
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\" \"tests/**/*.{ts,js}\" \"*.{json,md,html}\"",
+    "pack": "npm run build && zip -r chrome-paste-in-format-v0.2.0.zip manifest.json popup.html icon.png dist/ -x '*.DS_Store'"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.4",
