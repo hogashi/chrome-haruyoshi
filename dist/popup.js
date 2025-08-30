@@ -44,10 +44,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     customTemplateInput.addEventListener('input', () => {
         updateSaveButton();
     });
-    presetButtons.forEach(button => {
+    presetButtons.forEach((button) => {
         button.addEventListener('click', () => {
             const template = button.dataset.template || '';
-            customTemplateInput.value = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+            customTemplateInput.value = template
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"');
             updateSaveButton();
         });
     });
@@ -62,10 +65,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         try {
-            const response = await chrome.runtime.sendMessage({
+            const response = (await chrome.runtime.sendMessage({
                 action: 'getFormat',
-                domain: domain
-            });
+                domain: domain,
+            }));
             const formatData = response && response.format ? response.format : '';
             customTemplateInput.value = formatData;
             savedValue = formatData;
@@ -105,13 +108,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await chrome.runtime.sendMessage({
                     action: 'setFormat',
                     domain: domain,
-                    format: template
+                    format: template,
                 });
             }
             else {
                 await chrome.runtime.sendMessage({
                     action: 'deleteFormat',
-                    domain: domain
+                    domain: domain,
                 });
             }
             savedValue = template;
@@ -120,10 +123,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const currentDomain = url.hostname;
                 if (currentDomain === domain) {
                     if (template) {
-                        chrome.tabs.sendMessage(currentTab.id, { action: 'startListening' });
+                        chrome.tabs.sendMessage(currentTab.id, {
+                            action: 'startListening',
+                        });
                     }
                     else {
-                        chrome.tabs.sendMessage(currentTab.id, { action: 'stopListening' });
+                        chrome.tabs.sendMessage(currentTab.id, {
+                            action: 'stopListening',
+                        });
                     }
                 }
             }
@@ -139,15 +146,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     async function loadDomainList() {
         try {
-            const response = await chrome.runtime.sendMessage({ action: 'getAllFormats' });
-            const formats = (response && response.formats) ? response.formats : {};
+            const response = (await chrome.runtime.sendMessage({
+                action: 'getAllFormats',
+            }));
+            const formats = response && response.formats ? response.formats : {};
             domainList.innerHTML = '';
             const sortedDomains = Object.keys(formats).sort();
             if (sortedDomains.length === 0) {
-                domainList.innerHTML = '<div style="padding: 8px; font-size: 12px; color: #666; text-align: center;">No configurations</div>';
+                domainList.innerHTML =
+                    '<div style="padding: 8px; font-size: 12px; color: #666; text-align: center;">No configurations</div>';
                 return;
             }
-            sortedDomains.forEach(domain => {
+            sortedDomains.forEach((domain) => {
                 const format = formats[domain];
                 const domainItem = document.createElement('div');
                 domainItem.className = 'domain-item';
@@ -188,7 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     try {
                         await chrome.runtime.sendMessage({
                             action: 'deleteFormat',
-                            domain: domain
+                            domain: domain,
                         });
                         loadDomainList();
                         if (domainInput.value === domain) {

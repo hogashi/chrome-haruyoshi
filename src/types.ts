@@ -1,6 +1,12 @@
 // Chrome extension message types
 export interface Message {
-  action: 'getFormat' | 'setFormat' | 'deleteFormat' | 'getAllFormats' | 'startListening' | 'stopListening';
+  action:
+    | 'getFormat'
+    | 'setFormat'
+    | 'deleteFormat'
+    | 'getAllFormats'
+    | 'startListening'
+    | 'stopListening';
   domain?: string;
   format?: string;
 }

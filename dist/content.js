@@ -48,13 +48,13 @@ function matchesDomain(currentDomain, pattern) {
         return true;
     if (pattern.startsWith('*.')) {
         const baseDomain = pattern.slice(2);
-        return currentDomain.endsWith('.' + baseDomain) || currentDomain === baseDomain;
+        return (currentDomain.endsWith('.' + baseDomain) || currentDomain === baseDomain);
     }
     return false;
 }
 async function findMatchingFormat(currentDomain) {
     try {
-        const allSettings = await chrome.storage.sync.get(null);
+        const allSettings = (await chrome.storage.sync.get(null));
         if (allSettings[currentDomain]) {
             return allSettings[currentDomain];
         }
@@ -191,17 +191,22 @@ async function handleKeydown(event) {
 }
 function insertText(text) {
     const activeElement = document.activeElement;
-    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+    if (activeElement &&
+        (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
         const inputElement = activeElement;
         const start = inputElement.selectionStart || 0;
         const end = inputElement.selectionEnd || 0;
         const value = inputElement.value || '';
-        inputElement.value = value.substring(0, start) + text + value.substring(end);
-        inputElement.selectionStart = inputElement.selectionEnd = start + text.length;
+        inputElement.value =
+            value.substring(0, start) + text + value.substring(end);
+        inputElement.selectionStart = inputElement.selectionEnd =
+            start + text.length;
         inputElement.dispatchEvent(new Event('input', { bubbles: true }));
         inputElement.focus();
     }
-    else if (activeElement && (activeElement.contentEditable === 'true' || activeElement.isContentEditable)) {
+    else if (activeElement &&
+        (activeElement.contentEditable === 'true' ||
+            activeElement.isContentEditable)) {
         const selection = window.getSelection();
         if (selection && selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);

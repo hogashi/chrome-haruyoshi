@@ -6,7 +6,7 @@ declare global {
       chrome: any;
     }
   }
-  
+
   var chrome: any;
 }
 

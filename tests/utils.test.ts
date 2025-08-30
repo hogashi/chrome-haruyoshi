@@ -32,9 +32,9 @@ describe('findMatchingFormat', () => {
   it('should return exact domain match when available', async () => {
     const mockGet = jest.fn().mockResolvedValue({
       'github.com': '[{{title}}]({{url}})',
-      '*.github.com': '{{title}}: {{url}}'
+      '*.github.com': '{{title}}: {{url}}',
     });
-    
+
     (chrome.storage.sync.get as jest.Mock) = mockGet;
 
     const result = await findMatchingFormat('github.com');
@@ -43,9 +43,9 @@ describe('findMatchingFormat', () => {
 
   it('should return wildcard match when exact match not available', async () => {
     const mockGet = jest.fn().mockResolvedValue({
-      '*.github.com': '{{title}}: {{url}}'
+      '*.github.com': '{{title}}: {{url}}',
     });
-    
+
     (chrome.storage.sync.get as jest.Mock) = mockGet;
 
     const result = await findMatchingFormat('docs.github.com');
@@ -55,9 +55,9 @@ describe('findMatchingFormat', () => {
   it('should prioritize exact match over wildcard', async () => {
     const mockGet = jest.fn().mockResolvedValue({
       'github.com': '[{{title}}]({{url}})',
-      '*.github.com': '{{title}}: {{url}}'
+      '*.github.com': '{{title}}: {{url}}',
     });
-    
+
     (chrome.storage.sync.get as jest.Mock) = mockGet;
 
     const result = await findMatchingFormat('github.com');
@@ -66,9 +66,9 @@ describe('findMatchingFormat', () => {
 
   it('should return empty string when no match found', async () => {
     const mockGet = jest.fn().mockResolvedValue({
-      'example.com': '[{{title}}]({{url}})'
+      'example.com': '[{{title}}]({{url}})',
     });
-    
+
     (chrome.storage.sync.get as jest.Mock) = mockGet;
 
     const result = await findMatchingFormat('github.com');
@@ -77,7 +77,7 @@ describe('findMatchingFormat', () => {
 
   it('should return empty string when storage is empty', async () => {
     const mockGet = jest.fn().mockResolvedValue({});
-    
+
     (chrome.storage.sync.get as jest.Mock) = mockGet;
 
     const result = await findMatchingFormat('github.com');
@@ -86,7 +86,7 @@ describe('findMatchingFormat', () => {
 
   it('should handle storage errors gracefully', async () => {
     const mockGet = jest.fn().mockRejectedValue(new Error('Storage error'));
-    
+
     (chrome.storage.sync.get as jest.Mock) = mockGet;
 
     // Mock console.error to avoid error output in tests
@@ -94,7 +94,10 @@ describe('findMatchingFormat', () => {
 
     const result = await findMatchingFormat('github.com');
     expect(result).toBe('');
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to find matching format:', expect.any(Error));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Failed to find matching format:',
+      expect.any(Error)
+    );
 
     consoleSpy.mockRestore();
   });
@@ -103,9 +106,9 @@ describe('findMatchingFormat', () => {
     const mockGet = jest.fn().mockResolvedValue({
       '*.github.com': 'GitHub: {{title}} - {{url}}',
       '*.google.com': 'Google: {{title}} ({{url}})',
-      '*.stackoverflow.com': 'SO: {{title}} | {{url}}'
+      '*.stackoverflow.com': 'SO: {{title}} | {{url}}',
     });
-    
+
     (chrome.storage.sync.get as jest.Mock) = mockGet;
 
     const githubResult = await findMatchingFormat('api.github.com');

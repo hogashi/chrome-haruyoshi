@@ -6,13 +6,13 @@ function matchesDomain(currentDomain, pattern) {
         return true;
     if (pattern.startsWith('*.')) {
         const baseDomain = pattern.slice(2);
-        return currentDomain.endsWith('.' + baseDomain) || currentDomain === baseDomain;
+        return (currentDomain.endsWith('.' + baseDomain) || currentDomain === baseDomain);
     }
     return false;
 }
 async function findMatchingFormat(currentDomain) {
     try {
-        const allSettings = await chrome.storage.sync.get(null);
+        const allSettings = (await chrome.storage.sync.get(null));
         if (allSettings[currentDomain]) {
             return allSettings[currentDomain];
         }
@@ -32,7 +32,7 @@ async function findMatchingFormat(currentDomain) {
 ;// ./src/background.ts
 
 chrome.runtime.onInstalled.addListener(async () => {
-    const stored = await chrome.storage.sync.get(null);
+    const stored = (await chrome.storage.sync.get(null));
     const toRemove = [];
     for (const [domain, format] of Object.entries(stored)) {
         if (format === 'markdown' || format === 'richtext' || format === 'plain') {
@@ -50,7 +50,9 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
         const domain = url.hostname;
         const format = await findMatchingFormat(domain);
         if (format) {
-            chrome.tabs.sendMessage(activeInfo.tabId, { action: 'startListening' });
+            chrome.tabs.sendMessage(activeInfo.tabId, {
+                action: 'startListening',
+            });
         }
     }
 });
@@ -67,7 +69,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'getFormat') {
         const domain = message.domain;
-        chrome.storage.sync.get(domain).then((settings) => {
+        chrome.storage.sync
+            .get(domain)
+            .then((settings) => {
             const format = settings[domain] || '';
             sendResponse({ format: format });
         });
@@ -88,7 +92,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
     else if (message.action === 'getAllFormats') {
-        chrome.storage.sync.get(null).then((allSettings) => {
+        chrome.storage.sync
+            .get(null)
+            .then((allSettings) => {
             sendResponse({ formats: allSettings });
         });
         return true;
