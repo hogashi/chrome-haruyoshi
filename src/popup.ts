@@ -135,16 +135,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       saveError.textContent = '';
-      
+
       // 保存成功後、1秒間Savedと表示
       saveButton.textContent = 'Saved';
       saveButton.style.background = '#666';
       saveButton.disabled = true;
-      
+
       setTimeout(() => {
         updateSaveButton();
       }, 1000);
-      
+
       loadDomainList();
     } catch (error) {
       console.error('Failed to set format:', error);
